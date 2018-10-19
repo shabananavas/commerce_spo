@@ -4,3 +4,15 @@
  * @file
  * Contains code for the commerce_spo module.
  */
+
+const COMMERCE_SPO_LOGGER_CHANNEL = 'commerce_spo';
+
+/**
+ * Implements hook_entity_type_build().
+ */
+function commerce_spo_entity_type_build(array &$entity_types) {
+  $entity_types['commerce_order']->setFormClass(
+    'commerce_spo',
+    'Drupal\commerce_spo\Form\IndividualOrderPageForm'
+  );
+}
