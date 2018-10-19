@@ -1,0 +1,6 @@
+services:
+  commerce_spo.route_subscriber:
+    class: Drupal\commerce_spo\Routing\SinglePageOrderTypeRouteSubscriber
+    tags:
+      - { name: event_subscriber }
+    arguments: ['@entity_type.manager']
