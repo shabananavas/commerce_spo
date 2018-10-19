@@ -95,6 +95,33 @@ class SinglePageOrderTypeForm extends EntityForm {
       '#default_value' => $product,
     ];
 
+    $form['enableIndividualPage'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable an individual order page for purchasing this product'),
+      '#default_value' => $entity->getEnableIndividualPage(),
+    ];
+
+    // Label.
+    $form['individualPageUrl'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('The URL of the individual page'),
+      '#description' => $this->t(
+        'This is where you denote what the link of this order page should be.
+        A relative URL like "/donate-page" is expected.
+        <br><strong>Note: The URL should start with a slash.</strong></br>'
+      ),
+      '#maxlength' => 255,
+      '#default_value' => $entity->getIndividualPageUrl(),
+      '#states' => [
+        'visible' => [
+          ':input[name="enableIndividualPage"]' => ['checked' => TRUE],
+        ],
+        'required' => [
+          ':input[name="enableIndividualPage"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
     return $form;
   }
 
@@ -116,6 +143,14 @@ class SinglePageOrderTypeForm extends EntityForm {
       $form_state->setErrorByName(
         'id',
         $this->t('A single page order type with the same name already exists.')
+      );
+    }
+
+    // Ensure we have a slash at the beginning for the individual page URL.
+    if (substr($form_state->getValue('individualPageUrl'), 0, 1) !== '/') {
+      $form_state->setErrorByName(
+        'individualPageUrl',
+        $this->t('The URL must start with a slash.')
       );
     }
   }

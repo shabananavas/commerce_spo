@@ -39,6 +39,8 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "label",
  *     "description",
  *     "productId",
+ *     "enableIndividualPage",
+ *     "individualPageUrl",
  *   },
  *   links = {
  *     "add-form" = "/admin/commerce/config/orders/commerce_spo/order-types/add",
@@ -72,6 +74,20 @@ class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTyp
   protected $productId;
 
   /**
+   * If an individual order page should be enabled.
+   *
+   * @var bool
+   */
+  protected $enableIndividualPage;
+
+  /**
+   * The individual page url.
+   *
+   * @var string
+   */
+  protected $individualPageUrl;
+
+  /**
    * {@inheritdoc}
    */
   public function getDescription() {
@@ -98,6 +114,36 @@ class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTyp
    */
   public function setProductId($product_id) {
     $this->productId = $product_id;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEnableIndividualPage() {
+    return $this->enableIndividualPage;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEnableIndividualPage($enable_individual_page) {
+    $this->enableIndividualPage = $enable_individual_page;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIndividualPageUrl() {
+    return $this->individualPageUrl;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setIndividualPageUrl($individual_page_url) {
+    $this->individualPageUrl = $individual_page_url;
     return $this;
   }
 

@@ -32,4 +32,40 @@ interface SinglePageOrderTypeInterface extends ConfigEntityInterface, EntityDesc
    */
   public function getProductId();
 
+  /**
+   * Set whether this entity should have an individual order page.
+   *
+   * @param bool $enable_individual_page
+   *   TRUE if this entity should have an individual order page.
+   *
+   * @return $this
+   */
+  public function setEnableIndividualPage($enable_individual_page);
+
+  /**
+   * Return TRUE if this entity should have an individual order page.
+   *
+   * @return bool
+   *   TRUE if this entity should have an individual order page.
+   */
+  public function getEnableIndividualPage();
+
+  /**
+   * Set the individual order URL for this entity.
+   *
+   * @param bool $individual_page_url
+   *   The relative URL of the individual page.
+   *
+   * @return $this
+   */
+  public function setIndividualPageUrl($individual_page_url);
+
+  /**
+   * Gets the individual page URL.
+   *
+   * @return string
+   *   The relative URL of the individual page.
+   */
+  public function getIndividualPageUrl();
+
 }

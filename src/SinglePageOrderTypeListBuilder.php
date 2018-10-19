@@ -8,6 +8,10 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
+use Drupal\Core\Link;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Url;
+
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -41,12 +45,20 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
   protected $entityTypeManager;
 
   /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
     EntityTypeInterface $entity_type,
     EntityStorageInterface $storage,
-    EntityTypeManagerInterface $entity_type_manager
+    EntityTypeManagerInterface $entity_type_manager,
+    RendererInterface $renderer
   ) {
     parent::__construct($entity_type, $storage);
 
@@ -63,7 +75,8 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
     return new static(
       $entity_type,
       $container->get('entity.manager')->getStorage($entity_type->id()),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('renderer')
     );
   }
 
@@ -74,6 +87,7 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
     $header['name'] = $this->t('Single page order type');
     $header['type'] = $this->t('Machine name');
     $header['product'] = $this->t('Product');
+    $header['individual_page_url'] = $this->t('Individual Page URL');
 
     return $header + parent::buildHeader();
   }
@@ -88,8 +102,12 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
     $row['type'] = $entity->id();
 
     /** @var \Drupal\commerce_product\Entity\ProductInterface $product */
-    $product = $this->entityTypeManager->getStorage('commerce_product')->load($entity->getProductId());
+    $product = $this->entityTypeManager->getStorage('commerce_product')
+      ->load($entity->getProductId());
     $row['product'] = $product->getTitle();
+
+    $url = Url::fromRoute('commerce_spo.single_page_order.' . $entity->id(), ['single_page_order_type' => $entity->id()]);
+    $row['individual_page_url'] = Link::fromTextAndUrl($entity->getIndividualPageUrl(), $url)->toString();
 
     return $row + parent::buildRow($entity);
   }
