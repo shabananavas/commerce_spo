@@ -1,0 +1,7 @@
+entity.single_page_order_type.collection:
+  path: '/admin/commerce/config/orders/commerce_spo/order-types'
+  defaults:
+    _entity_list: 'single_page_order_type'
+    _title: 'Single page order types'
+  requirements:
+    _permission: 'administer single_page_order_type'

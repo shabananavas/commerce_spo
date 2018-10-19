@@ -1,0 +1,5 @@
+entity.single_page_order_type.collection:
+  title: 'Single page order types'
+  route_name: entity.single_page_order_type.collection
+  base_route: commerce_order.configuration
+  description: 'Create and manage single page order types.'
