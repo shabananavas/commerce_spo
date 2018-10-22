@@ -46,19 +46,15 @@ class SinglePageOrderTypeRouteSubscriber extends RouteSubscriberBase {
 
     foreach ($spo_types as $spo_type) {
       // Create a custom route for this individual order page.
-      $options['parameters'][$entity_type] = [
-        'type' => 'entity:' . $entity_type,
-      ];
       $route = new Route(
-        $spo_type->getIndividualPageUrl() . '/{single_page_order_type}',
+        $spo_type->getIndividualPageUrl(),
         [
           '_title' => $spo_type->label(),
           '_controller' => '\Drupal\commerce_spo\Controller\IndividualOrderPageController::individualOrderPage',
         ],
         [
           '_permission' => 'view ' . $spo_type->id(),
-        ],
-        $options
+        ]
       );
 
       // Add our route to the collection with a unique key.

@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 use Drupal\Core\Link;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -45,20 +44,12 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
   protected $entityTypeManager;
 
   /**
-   * The renderer.
-   *
-   * @var \Drupal\Core\Render\RendererInterface
-   */
-  protected $renderer;
-
-  /**
    * {@inheritdoc}
    */
   public function __construct(
     EntityTypeInterface $entity_type,
     EntityStorageInterface $storage,
-    EntityTypeManagerInterface $entity_type_manager,
-    RendererInterface $renderer
+    EntityTypeManagerInterface $entity_type_manager
   ) {
     parent::__construct($entity_type, $storage);
 
@@ -75,8 +66,7 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
     return new static(
       $entity_type,
       $container->get('entity.manager')->getStorage($entity_type->id()),
-      $container->get('entity_type.manager'),
-      $container->get('renderer')
+      $container->get('entity_type.manager')
     );
   }
 
@@ -106,8 +96,12 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
       ->load($entity->getProductId());
     $row['product'] = $product->getTitle();
 
-    $url = Url::fromRoute('commerce_spo.single_page_order.' . $entity->id(), ['single_page_order_type' => $entity->id()]);
-    $row['individual_page_url'] = Link::fromTextAndUrl($entity->getIndividualPageUrl(), $url)->toString();
+    $url = '';
+    if ($entity->getEnableIndividualPage()) {
+      $url = Url::fromRoute('commerce_spo.single_page_order.' . $entity->id());
+      $url = Link::fromTextAndUrl($entity->getIndividualPageUrl(), $url)->toString();
+    }
+    $row['individual_page_url'] = $url;
 
     return $row + parent::buildRow($entity);
   }
