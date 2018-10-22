@@ -6,6 +6,7 @@ use Drupal\commerce_payment\PaymentOptionsBuilderInterface;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsStoredPaymentMethodsInterface;
 use Drupal\commerce_price\Price;
 
+use Drupal\commerce_spo\Entity\SinglePageOrderTypeInterface;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\ContentEntityForm;
@@ -125,7 +126,6 @@ class IndividualOrderPageForm extends ContentEntityForm {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
 
     $this->routeMatch = $route_match;
-    $this->spoType = $this->routeMatch->getParameter('single_page_order_type');
     $this->entityManager = $entity_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->dateFormatter = $date_formatter;
@@ -161,14 +161,73 @@ class IndividualOrderPageForm extends ContentEntityForm {
   }
 
   /**
+   * Sets the single page order type entity.
+   *
+   * @param \Drupal\commerce_spo\Entity\SinglePageOrderTypeInterface $spo_type
+   *   The single page order type.
+   */
+  public function setSinglePageOrderTypeEntity(SinglePageOrderTypeInterface $spo_type) {
+    $this->spoType = $spo_type;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Build the parent form.
     $form = parent::buildForm($form, $form_state);
 
+    // Build the product variation select field.
+    $form += $this->buildProductSelectionField($form, $form_state);
+
     // Add our payment method form.
-    //$form += $this->buildPaymentMethodForm($form, $form_state);
+    $form += $this->buildPaymentMethodForm($form, $form_state);
+
+    // Alter form fields.
+    $this->alterFormFields($form, $form_state);
+
+    return $form;
+  }
+
+  /**
+   * Builds the product variation select field.
+   *
+   * @param array $form
+   *   The individual order page form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state of the parent form.
+   *
+   * @return array
+   *   The form array.
+   */
+  public function buildProductSelectionField(
+    array $form,
+    FormStateInterface $form_state
+  ) {
+    // Load all the variations for the product associated with this spo_type.
+    /** @var \Drupal\commerce_product\Entity\ProductInterface $product */
+    $product = $this->entityTypeManager
+      ->getStorage('commerce_product')
+      ->load($this->spoType->getProductId());
+    $product_variations = $product->getVariations();
+
+    // Now, build a select field for the user to select the order item.
+    $options = [];
+    foreach ($product_variations as $product_variation) {
+      $options[$product_variation->id()] = $product_variation->getTitle();
+    }
+
+    $form['product_select'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select Product'),
+      '#options' => $options,
+      '#required' => TRUE,
+    ];
+
+    $form['product_variations'] = [
+      '#type' => 'value',
+      '#value' => $product_variations,
+    ];
 
     return $form;
   }
@@ -184,8 +243,8 @@ class IndividualOrderPageForm extends ContentEntityForm {
    * @return array
    *   The form array.
    */
-  protected function buildPaymentMethodForm(
-    array &$form,
+  public function buildPaymentMethodForm(
+    array $form,
     FormStateInterface $form_state
   ) {
     $order = $this->entity;
@@ -262,6 +321,23 @@ class IndividualOrderPageForm extends ContentEntityForm {
   }
 
   /**
+   * Alters the fields in the individual order page form.
+   *
+   * @param array $form
+   *   The individual order page form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state of the parent form.
+   */
+  public function alterFormFields(array &$form, FormStateInterface $form_state) {
+    $form['product_select']['#weight'] = -100;
+    $form['adjustments']['#weight'] = 100;
+    $form['adjustments']['widget']['#weight'] = 100;
+    $form['coupons']['#weight'] = 101;
+    $form['order_items']['#access'] = FALSE;
+    $form['cart']['#access'] = FALSE;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -282,17 +358,18 @@ class IndividualOrderPageForm extends ContentEntityForm {
 
     // Add the order item.
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-    /*$order = $this->entity;
+    $order = $this->entity;
 
+    $product_variations = $form_state->getValue('product_variations');
+    /** @var \Drupal\commerce_product\Entity\ProductVariationInterface $purchased_product_variation */
+    $purchased_product_variation = $product_variations[$form_state->getValue('product_select')];
     $order_item = $this->entityTypeManager->getStorage('commerce_order_item')->create([
-      'type' => 'donation',
-      'title' => t('@amount donation', [
-        '@amount' => $default_currency->getSymbol() . $amount_value,
-      ]),
-      'unit_price' => $price,
+      'type' => $this->spoType->getSelectedOrderItemType(),
+      'title' => $purchased_product_variation->getTitle(),
+      'unit_price' => $purchased_product_variation->getPrice(),
     ]);
     $order->addItem($order_item);
-    $order->setEmail($form_state->getValue('email'));
+    $order->setEmail($this->currentUser->getEmail());
 
     // Complete the payment.
     $this->completePayment($form, $form_state);
@@ -301,10 +378,6 @@ class IndividualOrderPageForm extends ContentEntityForm {
     $transition = $order->getState()->getWorkflow()->getTransition('place');
     $order->getState()->applyTransition($transition);
     $order->save();
-
-    // Re-direct to our thank you page.
-    $url = Url::fromUri('internal:/donate-confirmation');
-    $form_state->setRedirectUrl($url);*/
   }
 
   /**
@@ -315,7 +388,7 @@ class IndividualOrderPageForm extends ContentEntityForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state of the parent form.
    */
-  protected function completePayment(array $form, FormStateInterface $form_state) {
+  public function completePayment(array $form, FormStateInterface $form_state) {
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $this->entity;
     $values = $form_state->getValue($form['#parents']);
@@ -379,7 +452,7 @@ class IndividualOrderPageForm extends ContentEntityForm {
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The error message.
    */
-  protected function noPaymentGatewayErrorMessage() {
+  public function noPaymentGatewayErrorMessage() {
     // Log the specific error message and return a general message to the user.
     $message = sprintf(
       'No payment gateways were available when preparing the order 

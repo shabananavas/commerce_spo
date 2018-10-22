@@ -96,32 +96,29 @@ class IndividualOrderPageController extends ControllerBase {
     $store = $this->currentStore->getStore();
 
     // Get the single page order type from the URL.
-    $spo_type = $this->routeMatch->getParameter('single_page_order_type');
+    $spo_type = $this->entityTypeManager->getStorage('single_page_order_type')->loadByProperties([
+      'individualPageUrl' => $this->routeMatch->getRouteObject()->getPath(),
+    ]);
+    $spo_type = reset($spo_type);
 
     if (!$spo_type instanceof SinglePageOrderTypeInterface) {
       return [];
     }
 
-    // Get the order type from the product the spo_type references.
-    $product = $this->entityTypeManager->getStorage('commerce_product')
-      ->load($spo_type->getProductId());
-    /** @var \Drupal\commerce_product\Entity\ProductTypeInterface $product_type */
-    $product_type = $this->entityTypeManager->getStorage('commerce_product_type')
-      ->load($product->bundle());
-    /** @var \Drupal\commerce_product\Entity\ProductVariationTypeInterface $product_variation_type */
-    $product_variation_type = $this->entityTypeManager->getStorage('commerce_product_variation_type')
-      ->load($product_type->getVariationTypeId());
-    /** @var \Drupal\commerce_order\Entity\OrderItemTypeInterface $order_item_type */
-    $order_item_type = $this->entityTypeManager->getStorage('commerce_order_item_type')
-      ->load($product_variation_type->getOrderItemTypeId());
-
-    $order_type = $order_item_type->getOrderTypeId();
+    // Now, load an existing cart if it exists, or create a new one.
+    $order_type = $spo_type->getSelectedOrderType();
     $order = $this->cartProvider->getCart($order_type, $store);
     if (!$order) {
       $order = $this->cartProvider->createCart($order_type, $store);
     }
 
-    return $this->entityFormBuilder()->getForm($order, 'commerce_spo');
+    // Build and render the order form.
+    /** @var \Drupal\commerce_spo\Form\IndividualOrderPageForm $form_object */
+    $form_object = $this->entityTypeManager->getFormObject('commerce_order', 'commerce_spo');
+    $form_object->setEntity($order);
+    $form_object->setSinglePageOrderTypeEntity($spo_type);
+
+    return $this->formBuilder()->getForm($form_object);
   }
 
 }
