@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteBuilderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,13 +27,26 @@ class SinglePageOrderTypeForm extends EntityForm {
   protected $entityTypeManager;
 
   /**
+   * The router builder service.
+   *
+   * @var \Drupal\Core\Routing\RouteBuilderInterface
+   */
+  protected $routerBuilder;
+
+  /**
    * Constructs an SinglePageOrderTypeForm object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entityTypeManager.
+   * @param \Drupal\Core\Routing\RouteBuilderInterface $router_builder
+   *   The router builder service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(
+    EntityTypeManagerInterface $entity_type_manager,
+    RouteBuilderInterface $router_builder
+  ) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->routerBuilder = $router_builder;
   }
 
   /**
@@ -40,7 +54,8 @@ class SinglePageOrderTypeForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('router.builder')
     );
   }
 
@@ -108,7 +123,7 @@ class SinglePageOrderTypeForm extends EntityForm {
       '#description' => $this->t(
         'This is where you denote what the link of this order page should be.
         A relative URL like "/donate-page" is expected.
-        <br><strong>Note: The URL should start with a slash.</strong></br>'
+        <br><strong>Note: The URL should start with a slash. Routes will be rebuilt on submit.</strong></br>'
       ),
       '#maxlength' => 255,
       '#default_value' => $entity->getIndividualPageUrl(),
@@ -120,9 +135,47 @@ class SinglePageOrderTypeForm extends EntityForm {
           ':input[name="enableIndividualPage"]' => ['checked' => TRUE],
         ],
       ],
+      '#element_validate' => [
+        [$this, 'validateUrl'],
+      ],
     ];
 
     return $form;
+  }
+
+  /**
+   * Validate handler for the individualPageUrl element.
+   */
+  public function validateUrl($element, FormStateInterface $form_state, $form) {
+    // Return if individual page has been disabled.
+    if (!$form_state->getValue('enableIndividualPage')) {
+      // Unset the value as well.
+      $form_state->setValueForElement($element, '');
+      return;
+    }
+
+    // Strip trailing slashes for the url and set it as the form_state value.
+    $individual_page_url = rtrim($form_state->getValue('individualPageUrl'), '/');
+    $form_state->setValueForElement($element, $individual_page_url);
+
+    // Ensure we have a slash at the beginning for the individual page URL.
+    if ($individual_page_url && substr($individual_page_url, 0, 1) !== '/') {
+      $form_state->setErrorByName(
+        'individualPageUrl',
+        $this->t('The URL must start with a slash.')
+      );
+    }
+
+    // Ensure the individualPageUrl doesn't already exist.
+    if ($form['individualPageUrl']['#default_value'] == $individual_page_url) {
+      return;
+    }
+    if ($individual_page_url && $this->exists('individualPageUrl', $individual_page_url)) {
+      $form_state->setErrorByName(
+        'individualPageUrl',
+        $this->t('A single page order type with the same url already exists.')
+      );
+    }
   }
 
   /**
@@ -139,19 +192,15 @@ class SinglePageOrderTypeForm extends EntityForm {
       );
     }
 
-    if ($this->entity->isNew() && $this->exists($id)) {
-      $form_state->setErrorByName(
-        'id',
-        $this->t('A single page order type with the same name already exists.')
-      );
-    }
-
-    // Ensure we have a slash at the beginning for the individual page URL.
-    if (substr($form_state->getValue('individualPageUrl'), 0, 1) !== '/') {
-      $form_state->setErrorByName(
-        'individualPageUrl',
-        $this->t('The URL must start with a slash.')
-      );
+    // If we have a new entity.
+    if ($this->entity->isNew()) {
+      // Ensure we don't have the same name.
+      if ($this->exists('id', $id)) {
+        $form_state->setErrorByName(
+          'id',
+          $this->t('A single page order type with the same name already exists.')
+        );
+      }
     }
   }
 
@@ -163,6 +212,9 @@ class SinglePageOrderTypeForm extends EntityForm {
 
     $this->entity->save();
 
+    // Rebuild routes.
+    $this->routerBuilder->rebuild();
+
     drupal_set_message($this->t('Saved the %label single page order type.', [
       '%label' => $this->entity->label(),
     ]));
@@ -173,17 +225,19 @@ class SinglePageOrderTypeForm extends EntityForm {
   /**
    * Function to check whether a SinglePageOrderType config entity exists.
    *
-   * @param string $id
-   *   The ID (machine name) of the spo type.
+   * @param string $condition
+   *   The query condition. Eg. 'id'.
+   * @param string $value
+   *   The value for the query condition. Eg. 1 if the condition is 'id'.
    *
    * @return bool
    *   Whether the spo type exists or not.
    */
-  protected function exists($id) {
+  protected function exists($condition, $value) {
     $ids = $this->entityTypeManager
       ->getStorage('single_page_order_type')
       ->getQuery()
-      ->condition('id', $id)
+      ->condition($condition, $value)
       ->execute();
 
     return (bool) $ids;
