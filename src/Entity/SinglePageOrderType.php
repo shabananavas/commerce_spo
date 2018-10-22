@@ -3,6 +3,7 @@
 namespace Drupal\commerce_spo\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Defines the single page order type configuration entity.
@@ -88,6 +89,15 @@ class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTyp
   protected $individualPageUrl;
 
   /**
+   * Gets the entity type manager.
+   *
+   * @return \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected function entityTypeManager() {
+    return \Drupal::entityTypeManager();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getDescription() {
@@ -145,6 +155,44 @@ class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTyp
   public function setIndividualPageUrl($individual_page_url) {
     $this->individualPageUrl = $individual_page_url;
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSelectedProductType() {
+    $product = $this->entityTypeManager()->getStorage('commerce_product')
+      ->load($this->getProductId());
+
+    /** @var \Drupal\commerce_product\Entity\ProductTypeInterface $product_type */
+    return $this->entityTypeManager()->getStorage('commerce_product_type')
+      ->load($product->bundle());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSelectedProductVariationType() {
+    /** @var \Drupal\commerce_product\Entity\ProductVariationTypeInterface $product_variation_type */
+    return $this->entityTypeManager()->getStorage('commerce_product_variation_type')
+      ->load($this->getSelectedProductType()->getVariationTypeId());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSelectedOrderItemType() {
+    /** @var \Drupal\commerce_order\Entity\OrderItemTypeInterface $order_item_type */
+    return $this->entityTypeManager()->getStorage('commerce_order_item_type')
+      ->load($this->getSelectedProductVariationType()->getOrderItemTypeId());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSelectedOrderType() {
+    // We finally have the order type.
+    return $this->getSelectedOrderItemType()->getOrderTypeId();
   }
 
 }

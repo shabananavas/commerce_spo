@@ -68,4 +68,36 @@ interface SinglePageOrderTypeInterface extends ConfigEntityInterface, EntityDesc
    */
   public function getIndividualPageUrl();
 
+  /**
+   * Returns the product type of the selected product.
+   *
+   * @return \Drupal\commerce_product\Entity\ProductTypeInterface
+   *   The loaded product type entity.
+   */
+  public function getSelectedProductType();
+
+  /**
+   * Returns the product variation type of the selected product.
+   *
+   * @return \Drupal\commerce_product\Entity\ProductVariationTypeInterface
+   *   The loaded product variation type entity.
+   */
+  public function getSelectedProductVariationType();
+
+  /**
+   * Returns the order item type of the selected product.
+   *
+   * @return \Drupal\commerce_order\Entity\OrderItemTypeInterface
+   *   The loaded order item type entity.
+   */
+  public function getSelectedOrderItemType();
+
+  /**
+   * Returns the order type of the selected product.
+   *
+   * @return \Drupal\commerce_order\Entity\OrderTypeInterface
+   *   The loaded order type entity.
+   */
+  public function getSelectedOrderType();
+
 }
