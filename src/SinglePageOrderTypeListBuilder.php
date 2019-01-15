@@ -77,7 +77,7 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
     $header['name'] = $this->t('Single page order type');
     $header['type'] = $this->t('Machine name');
     $header['product'] = $this->t('Product');
-    $header['individual_page_url'] = $this->t('Individual Page URL');
+    $header['enable_individual_page'] = $this->t('Enable Individual Page');
 
     return $header + parent::buildHeader();
   }
@@ -94,14 +94,22 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
     /** @var \Drupal\commerce_product\Entity\ProductInterface $product */
     $product = $this->entityTypeManager->getStorage('commerce_product')
       ->load($entity->getProductId());
-    $row['product'] = $product->getTitle();
+    $product_title = $product->getTitle();
 
-    $url = '';
+    $enable_individual_page = $this->t('No');
     if ($entity->getEnableIndividualPage()) {
-      $url = Url::fromRoute('commerce_spo.single_page_order.' . $entity->id());
-      $url = Link::fromTextAndUrl($entity->getIndividualPageUrl(), $url)->toString();
+      // Link the title to the product page.
+      $product_title = Link::fromTextAndUrl(
+        $this->t($product_title),
+        Url::fromRoute('entity.commerce_product.canonical', [
+          'commerce_product' => $product->id(),
+        ])
+      );
+      $enable_individual_page = $this->t('Yes');
     }
-    $row['individual_page_url'] = $url;
+
+    $row['product'] = $product_title;
+    $row['enable_individual_page'] = $enable_individual_page;
 
     return $row + parent::buildRow($entity);
   }

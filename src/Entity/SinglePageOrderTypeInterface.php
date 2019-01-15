@@ -51,22 +51,12 @@ interface SinglePageOrderTypeInterface extends ConfigEntityInterface, EntityDesc
   public function getEnableIndividualPage();
 
   /**
-   * Set the individual order URL for this entity.
+   * Returns the selected product entity.
    *
-   * @param bool $individual_page_url
-   *   The relative URL of the individual page.
-   *
-   * @return $this
+   * @return \Drupal\commerce_product\Entity\ProductInterface
+   *   The loaded product entity.
    */
-  public function setIndividualPageUrl($individual_page_url);
-
-  /**
-   * Gets the individual page URL.
-   *
-   * @return string
-   *   The relative URL of the individual page.
-   */
-  public function getIndividualPageUrl();
+  public function getSelectedProduct();
 
   /**
    * Returns the product type of the selected product.

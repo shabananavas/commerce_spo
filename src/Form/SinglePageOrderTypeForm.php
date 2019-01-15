@@ -8,6 +8,9 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteBuilderInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -116,66 +119,7 @@ class SinglePageOrderTypeForm extends EntityForm {
       '#default_value' => $entity->getEnableIndividualPage(),
     ];
 
-    // Label.
-    $form['individualPageUrl'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('The URL of the individual page'),
-      '#description' => $this->t(
-        'This is where you denote what the link of this order page should be.
-        A relative URL like "/donate-page" is expected.
-        <br><strong>Note: The URL should start with a slash. Routes will be rebuilt on submit.</strong></br>'
-      ),
-      '#maxlength' => 255,
-      '#default_value' => $entity->getIndividualPageUrl(),
-      '#states' => [
-        'visible' => [
-          ':input[name="enableIndividualPage"]' => ['checked' => TRUE],
-        ],
-        'required' => [
-          ':input[name="enableIndividualPage"]' => ['checked' => TRUE],
-        ],
-      ],
-      '#element_validate' => [
-        [$this, 'validateUrl'],
-      ],
-    ];
-
     return $form;
-  }
-
-  /**
-   * Validate handler for the individualPageUrl element.
-   */
-  public function validateUrl($element, FormStateInterface $form_state, $form) {
-    // Return if individual page has been disabled.
-    if (!$form_state->getValue('enableIndividualPage')) {
-      // Unset the value as well.
-      $form_state->setValueForElement($element, '');
-      return;
-    }
-
-    // Strip trailing slashes for the url and set it as the form_state value.
-    $individual_page_url = rtrim($form_state->getValue('individualPageUrl'), '/');
-    $form_state->setValueForElement($element, $individual_page_url);
-
-    // Ensure we have a slash at the beginning for the individual page URL.
-    if ($individual_page_url && substr($individual_page_url, 0, 1) !== '/') {
-      $form_state->setErrorByName(
-        'individualPageUrl',
-        $this->t('The URL must start with a slash.')
-      );
-    }
-
-    // Ensure the individualPageUrl doesn't already exist.
-    if ($form['individualPageUrl']['#default_value'] == $individual_page_url) {
-      return;
-    }
-    if ($individual_page_url && $this->exists('individualPageUrl', $individual_page_url)) {
-      $form_state->setErrorByName(
-        'individualPageUrl',
-        $this->t('A single page order type with the same url already exists.')
-      );
-    }
   }
 
   /**
@@ -208,14 +152,16 @@ class SinglePageOrderTypeForm extends EntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $this->entity;
-
     $this->entity->save();
+
+    // Create a custom field on the commerce_order entity to denote which single
+    // page order type each order  associated with this product, references.
+    $this->createSinglePageOrderTypeField();
 
     // Rebuild routes.
     $this->routerBuilder->rebuild();
 
-    drupal_set_message($this->t('Saved the %label single page order type.', [
+    $this->messenger()->addMessage($this->t('Saved the %label single page order type.', [
       '%label' => $this->entity->label(),
     ]));
 
@@ -241,6 +187,37 @@ class SinglePageOrderTypeForm extends EntityForm {
       ->execute();
 
     return (bool) $ids;
+  }
+
+  /**
+   * Create a single page order type field on the commerce_order entity.
+   */
+  protected function createSinglePageOrderTypeField() {
+    $entity_type = 'commerce_order';
+    $field_name = 'single_page_order_type';
+    if (!$field_storage = FieldStorageConfig::loadByName($entity_type, $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => $entity_type,
+        'type' => 'entity_reference',
+        'cardinality' => 1,
+        'settings' => [
+          'target_type' => 'single_page_order_type',
+        ],
+      ])->save();
+
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => $entity_type,
+        'bundle' => $this->entity->getSelectedOrderType(),
+        'label' => $this->t('Single page order type'),
+        'cardinality' => 1,
+        'required' => TRUE,
+        'settings' => [
+          'handler' => 'default',
+        ],
+      ])->save();
+    }
   }
 
 }

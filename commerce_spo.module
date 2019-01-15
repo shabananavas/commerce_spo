@@ -13,6 +13,6 @@ const COMMERCE_SPO_LOGGER_CHANNEL = 'commerce_spo';
 function commerce_spo_entity_type_build(array &$entity_types) {
   $entity_types['commerce_order']->setFormClass(
     'commerce_spo',
-    'Drupal\commerce_spo\Form\IndividualOrderPageForm'
+    'Drupal\commerce_spo\Form\SinglePageOrderForm'
   );
 }

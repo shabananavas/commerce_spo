@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @package Drupal\commerce_spo\Controller
  */
-class IndividualOrderPageController extends ControllerBase {
+class SinglePageOrderController extends ControllerBase {
 
   /**
    * The entity type manager.
@@ -89,31 +89,41 @@ class IndividualOrderPageController extends ControllerBase {
    * @return mixed
    *   A render array.
    */
-  public function individualOrderPage() {
-    // Get the cart as using the cart allows us to easily pick up the associated
-    // order for the current user, instead of creating a new order on every page
-    // load.
-    $store = $this->currentStore->getStore();
+  public function productPage() {
+    // Get the single page order type from the product.
+    /** @var \Drupal\commerce_product\Entity\Product $product */
+    $product = $this->routeMatch->getParameter('commerce_product');
+    $spo_type = $this
+      ->entityTypeManager
+      ->getStorage('single_page_order_type')
+      ->loadByProperties([
+        'productId' => $product->id()
+        ]
+    );
 
-    // Get the single page order type from the URL.
-    $spo_type = $this->entityTypeManager->getStorage('single_page_order_type')->loadByProperties([
-      'individualPageUrl' => $this->routeMatch->getRouteObject()->getPath(),
-    ]);
+    // If this product is not associated with a Single page order, redirect to
+    // the default product page.
     $spo_type = reset($spo_type);
-
     if (!$spo_type instanceof SinglePageOrderTypeInterface) {
-      return [];
+      $product_view = $this
+        ->entityTypeManager
+        ->getViewBuilder('commerce_product')
+        ->view($product);
+
+      return $product_view;
     }
 
+    // Else, we redirect to our single page order page.
     // Now, load an existing cart if it exists, or create a new one.
+    $store = $this->currentStore->getStore();
     $order_type = $spo_type->getSelectedOrderType();
     $order = $this->cartProvider->getCart($order_type, $store);
     if (!$order) {
       $order = $this->cartProvider->createCart($order_type, $store);
     }
 
-    // Build and render the order form.
-    /** @var \Drupal\commerce_spo\Form\IndividualOrderPageForm $form_object */
+    // Build and render our single page order form.
+    /** @var \Drupal\commerce_spo\Form\SinglePageOrderForm $form_object */
     $form_object = $this->entityTypeManager->getFormObject('commerce_order', 'commerce_spo');
     $form_object->setEntity($order);
     $form_object->setSinglePageOrderTypeEntity($spo_type);

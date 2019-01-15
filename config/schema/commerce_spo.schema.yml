@@ -17,6 +17,3 @@ commerce_spo.single_page_order_type.*:
     enableIndividualPage:
       type: boolean
       label: 'Enable individual page'
-    individualPageUrl:
-      type: text
-      label: 'Individual page URL'

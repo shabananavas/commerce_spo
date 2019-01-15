@@ -5,6 +5,8 @@ namespace Drupal\commerce_spo\Form;
 use Drupal\commerce_payment\PaymentOptionsBuilderInterface;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsStoredPaymentMethodsInterface;
 use Drupal\commerce_price\Price;
+use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_product\ProductLazyBuilders;
 
 use Drupal\commerce_spo\Entity\SinglePageOrderTypeInterface;
 use Drupal\Component\Datetime\TimeInterface;
@@ -14,22 +16,22 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\Language;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\Core\Url;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class IndividualOrderPageForm.
+ * Class SinglePageOrderForm.
  *
- * Form controller for the IndividualOrderPage form.
+ * Form controller for the Single Page Order form.
  *
  * @package Drupal\commerce_spo\Form
  */
-class IndividualOrderPageForm extends ContentEntityForm {
+class SinglePageOrderForm extends ContentEntityForm {
 
   /**
    * The single_page_order_type entity.
@@ -88,6 +90,13 @@ class IndividualOrderPageForm extends ContentEntityForm {
   protected $logger;
 
   /**
+   * The commerce product lazy builder.
+   *
+   * @var \Drupal\commerce_product\ProductLazyBuilders
+   */
+  protected $lazyBuilders;
+
+  /**
    * Constructs a new IndividualOrderPageForm object.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -110,6 +119,8 @@ class IndividualOrderPageForm extends ContentEntityForm {
    *   The messenger.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
+   * @param \Drupal\commerce_product\ProductLazyBuilders $lazy_builders
+   *   The commerce product lazy builder.
    */
   public function __construct(
     RouteMatchInterface $route_match,
@@ -121,7 +132,8 @@ class IndividualOrderPageForm extends ContentEntityForm {
     AccountProxyInterface $current_user,
     PaymentOptionsBuilderInterface $payment_options_builder,
     MessengerInterface $messenger,
-    LoggerInterface $logger
+    LoggerInterface $logger,
+    ProductLazyBuilders $lazy_builders
   ) {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
 
@@ -133,6 +145,7 @@ class IndividualOrderPageForm extends ContentEntityForm {
     $this->paymentOptionsBuilder = $payment_options_builder;
     $this->messenger = $messenger;
     $this->logger = $logger;
+    $this->lazyBuilders = $lazy_builders;
   }
 
   /**
@@ -149,7 +162,8 @@ class IndividualOrderPageForm extends ContentEntityForm {
       $container->get('current_user'),
       $container->get('commerce_payment.options_builder'),
       $container->get('messenger'),
-      $container->get('logger.factory')->get(COMMERCE_SPO_LOGGER_CHANNEL)
+      $container->get('logger.factory')->get(COMMERCE_SPO_LOGGER_CHANNEL),
+      $container->get('commerce_product.lazy_builders')
     );
   }
 
@@ -175,59 +189,21 @@ class IndividualOrderPageForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Build the parent form.
-    $form = parent::buildForm($form, $form_state);
+    //$form = parent::buildForm($form, $form_state)
 
-    // Build the product variation select field.
-    $form += $this->buildProductSelectionField($form, $form_state);
+    // Add the add to cart form.
+    $form += $this->lazyBuilders->addToCartForm(
+      $this->spoType->getProductId(),
+      'cart',
+      TRUE,
+      Language::LANGCODE_NOT_SPECIFIED
+    );
 
     // Add our payment method form.
-    $form += $this->buildPaymentMethodForm($form, $form_state);
+    /*$form += $this->buildPaymentMethodForm($form, $form_state);
 
     // Alter form fields.
-    $this->alterFormFields($form, $form_state);
-
-    return $form;
-  }
-
-  /**
-   * Builds the product variation select field.
-   *
-   * @param array $form
-   *   The individual order page form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state of the parent form.
-   *
-   * @return array
-   *   The form array.
-   */
-  public function buildProductSelectionField(
-    array $form,
-    FormStateInterface $form_state
-  ) {
-    // Load all the variations for the product associated with this spo_type.
-    /** @var \Drupal\commerce_product\Entity\ProductInterface $product */
-    $product = $this->entityTypeManager
-      ->getStorage('commerce_product')
-      ->load($this->spoType->getProductId());
-    $product_variations = $product->getVariations();
-
-    // Now, build a select field for the user to select the order item.
-    $options = [];
-    foreach ($product_variations as $product_variation) {
-      $options[$product_variation->id()] = $product_variation->getTitle();
-    }
-
-    $form['product_select'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Select Product'),
-      '#options' => $options,
-      '#required' => TRUE,
-    ];
-
-    $form['product_variations'] = [
-      '#type' => 'value',
-      '#value' => $product_variations,
-    ];
+    $this->alterFormFields($form, $form_state);*/
 
     return $form;
   }

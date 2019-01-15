@@ -1,5 +1,5 @@
 entity.single_page_order_type.collection:
-  path: '/admin/commerce/config/orders/commerce_spo/order-types'
+  path: '/admin/commerce/config/orders/commerce_spo/single-page-order-types'
   defaults:
     _entity_list: 'single_page_order_type'
     _title: 'Single page order types'

@@ -10,8 +10,8 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *
  * @ConfigEntityType(
  *   id = "single_page_order_type",
- *   label = @Translation("single page order type"),
- *   label_collection = @Translation("single page order type"),
+ *   label = @Translation("Single page order type"),
+ *   label_collection = @Translation("Single page order type"),
  *   label_singular = @Translation("single page order type"),
  *   label_plural = @Translation("single page order types"),
  *   label_count = @PluralTranslation(
@@ -40,8 +40,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *     "label",
  *     "description",
  *     "productId",
- *     "enableIndividualPage",
- *     "individualPageUrl",
+ *     "enableIndividualPage"
  *   },
  *   links = {
  *     "add-form" = "/admin/commerce/config/orders/commerce_spo/order-types/add",
@@ -80,13 +79,6 @@ class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTyp
    * @var bool
    */
   protected $enableIndividualPage;
-
-  /**
-   * The individual page url.
-   *
-   * @var string
-   */
-  protected $individualPageUrl;
 
   /**
    * Gets the entity type manager.
@@ -145,28 +137,18 @@ class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTyp
   /**
    * {@inheritdoc}
    */
-  public function getIndividualPageUrl() {
-    return $this->individualPageUrl;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setIndividualPageUrl($individual_page_url) {
-    $this->individualPageUrl = $individual_page_url;
-    return $this;
+  public function getSelectedProduct() {
+    return $this->entityTypeManager()->getStorage('commerce_product')
+      ->load($this->getProductId());
   }
 
   /**
    * {@inheritdoc}
    */
   public function getSelectedProductType() {
-    $product = $this->entityTypeManager()->getStorage('commerce_product')
-      ->load($this->getProductId());
-
     /** @var \Drupal\commerce_product\Entity\ProductTypeInterface $product_type */
     return $this->entityTypeManager()->getStorage('commerce_product_type')
-      ->load($product->bundle());
+      ->load($this->getSelectedProduct()->bundle());
   }
 
   /**
