@@ -1,0 +1,40 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - commerce_product.commerce_product_type.single_page_order
+    - core.entity_view_mode.commerce_product.teaser
+    - field.field.commerce_product.single_page_order.body
+    - field.field.commerce_product.single_page_order.field_images
+    - field.field.commerce_product.single_page_order.stores
+    - field.field.commerce_product.single_page_order.variations
+  module:
+    - commerce_product
+id: commerce_product.single_page_order.teaser
+targetEntityType: commerce_product
+bundle: single_page_order
+mode: teaser
+content:
+  title:
+    label: hidden
+    type: string
+    weight: 0
+    region: content
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  variations:
+    type: commerce_add_to_cart
+    weight: 1
+    label: hidden
+    settings:
+      combine: true
+    third_party_settings: {  }
+    region: content
+hidden:
+  body: true
+  created: true
+  field_images: true
+  langcode: true
+  stores: true
+  uid: true

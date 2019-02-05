@@ -1,0 +1,14 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_tax
+third_party_settings:
+  commerce_tax:
+    taxable_type: physical_goods
+label: 'Single page order'
+id: single_page_order
+purchasableEntityType: commerce_product_variation
+orderType: single_page_order
+traits: {  }
+locked: false

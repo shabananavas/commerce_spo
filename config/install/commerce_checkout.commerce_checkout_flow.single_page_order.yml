@@ -1,0 +1,52 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_payment
+    - commerce_promotion
+    - commerce_shipping
+    - commerce_spo
+id: single_page_order
+label: 'Single page order'
+plugin: single_step_spo
+configuration:
+  display_checkout_progress: true
+  panes:
+    product_display:
+      add_to_cart_form: ''
+      step: order_information
+      weight: '0'
+    login:
+      allow_guest_checkout: true
+      allow_registration: false
+      step: order_information
+      weight: '1'
+    contact_information:
+      double_entry: false
+      step: order_information
+      weight: '2'
+    shipping_information:
+      require_shipping_profile: true
+      step: order_information
+      weight: '3'
+    payment_information:
+      step: order_information
+      weight: '4'
+    coupon_redemption:
+      allow_multiple: false
+      step: order_information
+      weight: '5'
+    order_summary:
+      view: ''
+      step: _sidebar
+      weight: '6'
+    review:
+      step: _disabled
+      weight: '7'
+    completion_message:
+      step: _disabled
+      weight: '8'
+    payment_process:
+      capture: true
+      step: _disabled
+      weight: '9'

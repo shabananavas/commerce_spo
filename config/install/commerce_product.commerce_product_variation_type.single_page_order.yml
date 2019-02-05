@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies: {  }
+id: single_page_order
+label: 'Single page order'
+orderItemType: single_page_order
+generateTitle: false
+traits:
+  - purchasable_entity_shippable
+locked: false

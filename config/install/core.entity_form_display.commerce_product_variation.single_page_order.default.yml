@@ -1,0 +1,73 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - commerce_product.commerce_product_variation_type.single_page_order
+    - field.field.commerce_product_variation.single_page_order.field_images
+    - field.field.commerce_product_variation.single_page_order.weight
+    - image.style.thumbnail
+  module:
+    - commerce_price
+    - image
+    - physical
+id: commerce_product_variation.single_page_order.default
+targetEntityType: commerce_product_variation
+bundle: single_page_order
+mode: default
+content:
+  field_images:
+    weight: 6
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    type: image_image
+    region: content
+  langcode:
+    type: language_select
+    weight: 3
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  price:
+    type: commerce_price_default
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  sku:
+    type: string_textfield
+    weight: 1
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 5
+    region: content
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  weight:
+    type: physical_measurement_default
+    weight: 4
+    settings:
+      default_unit: ''
+      allow_unit_change: true
+    third_party_settings: {  }
+    region: content
+hidden:
+  created: true
+  list_price: true
+  uid: true
