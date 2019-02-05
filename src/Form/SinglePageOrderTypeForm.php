@@ -155,7 +155,7 @@ class SinglePageOrderTypeForm extends EntityForm {
     $this->entity->save();
 
     // Create a custom field on the commerce_order entity to denote which single
-    // page order type each order  associated with this product, references.
+    // page order type each order associated with this product, references.
     $this->createSinglePageOrderTypeField();
 
     // Rebuild routes.
@@ -194,6 +194,7 @@ class SinglePageOrderTypeForm extends EntityForm {
    */
   protected function createSinglePageOrderTypeField() {
     $entity_type = 'commerce_order';
+    $bundle = $this->entity->getSelectedOrderType();
     $field_name = 'single_page_order_type';
     if (!$field_storage = FieldStorageConfig::loadByName($entity_type, $field_name)) {
       FieldStorageConfig::create([
@@ -205,11 +206,13 @@ class SinglePageOrderTypeForm extends EntityForm {
           'target_type' => 'single_page_order_type',
         ],
       ])->save();
+    }
 
+    if (!$field = FieldConfig::loadByName($entity_type, $bundle, $field_name)) {
       FieldConfig::create([
         'field_name' => $field_name,
         'entity_type' => $entity_type,
-        'bundle' => $this->entity->getSelectedOrderType(),
+        'bundle' => $bundle,
         'label' => $this->t('Single page order type'),
         'cardinality' => 1,
         'required' => TRUE,
