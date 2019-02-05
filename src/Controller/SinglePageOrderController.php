@@ -101,10 +101,11 @@ class SinglePageOrderController extends ControllerBase {
         ]
     );
 
-    // If this product is not associated with a Single page order, redirect to
+    // If this product is not associated with a Single page order or the SPO
+    // type doesn't have the enable_individual_page field checked, redirect to
     // the default product page.
     $spo_type = reset($spo_type);
-    if (!$spo_type instanceof SinglePageOrderTypeInterface) {
+    if (!$spo_type instanceof SinglePageOrderTypeInterface || !$spo_type->getEnableIndividualPage()) {
       $product_view = $this
         ->entityTypeManager
         ->getViewBuilder('commerce_product')
@@ -117,6 +118,7 @@ class SinglePageOrderController extends ControllerBase {
     // Now, load an existing cart if it exists, or create a new one.
     $store = $this->currentStore->getStore();
     $order_type = $spo_type->getSelectedOrderType();
+    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $this->cartProvider->getCart($order_type, $store);
     if (!$order) {
       $order = $this->cartProvider->createCart($order_type, $store);
