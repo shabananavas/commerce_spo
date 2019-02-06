@@ -1,0 +1,5 @@
+entity.spo_type.add_form:
+  route_name: entity.spo_type.add_form
+  title: 'Add a single page order type'
+  appears_on:
+    - entity.spo_type.collection
