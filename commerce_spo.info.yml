@@ -1,0 +1,9 @@
+name: Commerce Single Page Order
+type: module
+description: 'Provides the ability to create and checkout an order within a single page.'
+package: Commerce (contrib)
+core: 8.x
+dependencies:
+  - commerce:commerce_order
+  - commerce:commerce_price
+  - system (>=8.5.0)
