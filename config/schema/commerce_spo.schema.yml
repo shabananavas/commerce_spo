@@ -1,0 +1,19 @@
+commerce_spo.spo_type.*:
+  type: config_entity
+  label: 'Single Page Order Type'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: string
+      label: 'Label'
+    description:
+      type: text
+      label: 'Description'
+    productId:
+      type: int
+      label: 'Product ID'
+    enableIndividualPage:
+      type: boolean
+      label: 'Enable individual page'
