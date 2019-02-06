@@ -1,0 +1,7 @@
+entity.spo_type.collection:
+  path: '/admin/commerce/config/orders/commerce_spo/spo-types'
+  defaults:
+    _entity_list: 'spo_type'
+    _title: 'Single page order types'
+  requirements:
+    _permission: 'administer spo_type'

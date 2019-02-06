@@ -1,0 +1,6 @@
+entity.spo_type.collection:
+  title: 'Single page order types'
+  parent: commerce_order.configuration
+  description: 'Create and manage single page order types.'
+  route_name: entity.spo_type.collection
+  weight: 10
