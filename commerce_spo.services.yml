@@ -1,0 +1,5 @@
+services:
+  commerce_spo.route_subscriber:
+    class: Drupal\commerce_spo\Routing\SpoRouteSubscriber
+    tags:
+      - { name: event_subscriber }
