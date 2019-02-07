@@ -14,13 +14,13 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class SinglePageOrderTypeForm.
+ * Class SpoTypeForm.
  *
  * Form controller for the single page order type form.
  *
  * @package Drupal\commerce_spo\Form
  */
-class SinglePageOrderTypeForm extends EntityForm {
+class SpoTypeForm extends EntityForm {
 
   /**
    * The entity type manager.
@@ -37,7 +37,7 @@ class SinglePageOrderTypeForm extends EntityForm {
   protected $routerBuilder;
 
   /**
-   * Constructs an SinglePageOrderTypeForm object.
+   * Constructs an SpoTypeForm object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entityTypeManager.
@@ -68,7 +68,7 @@ class SinglePageOrderTypeForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    /** @var \Drupal\commerce_spo\Entity\SinglePageOrderType $entity */
+    /** @var \Drupal\commerce_spo\Entity\SpoType $entity */
     $entity = $this->entity;
 
     // Label.
@@ -85,7 +85,7 @@ class SinglePageOrderTypeForm extends EntityForm {
       '#type' => 'machine_name',
       '#default_value' => $entity->id(),
       '#machine_name' => [
-        'exists' => '\Drupal\commerce_spo\Entity\SinglePageOrderType::load',
+        'exists' => '\Drupal\commerce_spo\Entity\SpoType::load',
       ],
       '#maxlength' => EntityTypeInterface::BUNDLE_MAX_LENGTH,
     ];
@@ -156,7 +156,7 @@ class SinglePageOrderTypeForm extends EntityForm {
 
     // Create a custom field on the commerce_order entity to denote which single
     // page order type each order associated with this product, references.
-    $this->createSinglePageOrderTypeField();
+    $this->createSpoTypeField();
 
     // Rebuild routes.
     $this->routerBuilder->rebuild();
@@ -169,7 +169,7 @@ class SinglePageOrderTypeForm extends EntityForm {
   }
 
   /**
-   * Function to check whether a SinglePageOrderType config entity exists.
+   * Function to check whether a SpoType config entity exists.
    *
    * @param string $condition
    *   The query condition. Eg. 'id'.
@@ -192,7 +192,7 @@ class SinglePageOrderTypeForm extends EntityForm {
   /**
    * Create a single page order type field on the commerce_order entity.
    */
-  protected function createSinglePageOrderTypeField() {
+  protected function createSpoTypeField() {
     $entity_type = 'commerce_order';
     $bundle = $this->entity->getSelectedOrderType();
     $field_name = 'spo_type';

@@ -19,10 +19,10 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *     plural = "@count single page order types",
  *   ),
  *   handlers = {
- *     "list_builder" = "Drupal\commerce_spo\SinglePageOrderTypeListBuilder",
+ *     "list_builder" = "Drupal\commerce_spo\SpoTypeListBuilder",
  *     "form" = {
- *       "add" = "Drupal\commerce_spo\Form\SinglePageOrderTypeForm",
- *       "edit" = "Drupal\commerce_spo\Form\SinglePageOrderTypeForm",
+ *       "add" = "Drupal\commerce_spo\Form\SpoTypeForm",
+ *       "edit" = "Drupal\commerce_spo\Form\SpoTypeForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     },
  *     "route_provider" = {
@@ -50,7 +50,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *   }
  * )
  */
-class SinglePageOrderType extends ConfigEntityBase implements SinglePageOrderTypeInterface {
+class SpoType extends ConfigEntityBase implements SpoTypeInterface {
 
   /**
    * The configuration entity ID.
