@@ -14,13 +14,13 @@ use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class SinglePageOrderTypeListBuilder.
+ * Class SpoTypeListBuilder.
  *
  * Defines the list builder for single page order type.
  *
  * @package Drupal\commerce_spo
  */
-class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
+class SpoTypeListBuilder extends ConfigEntityListBuilder {
 
   /**
    * The entity storage class.
@@ -86,7 +86,7 @@ class SinglePageOrderTypeListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var \Drupal\commerce_spo\Entity\SinglePageOrderTypeInterface $entity */
+    /** @var \Drupal\commerce_spo\Entity\SpoTypeInterface $entity */
 
     $row['name'] = $entity->label();
     $row['type'] = $entity->id();

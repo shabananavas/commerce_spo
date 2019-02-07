@@ -6,13 +6,13 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityDescriptionInterface;
 
 /**
- * Interface SinglePageOrderTypeInterface.
+ * Interface SpoTypeInterface.
  *
- * Defines the interface for the SinglePageOrderType entity.
+ * Defines the interface for the SpoType entity.
  *
  * @package Drupal\commerce_spo\Entity
  */
-interface SinglePageOrderTypeInterface extends ConfigEntityInterface, EntityDescriptionInterface {
+interface SpoTypeInterface extends ConfigEntityInterface, EntityDescriptionInterface {
 
   /**
    * Sets the product that the single page order is for.
