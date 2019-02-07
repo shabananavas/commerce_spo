@@ -3,13 +3,17 @@ status: true
 dependencies:
   module:
     - commerce_pos
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
 third_party_settings:
   commerce_pos:
     show_in_pos: true
-id: single_page_order
+id: spo
 label: 'Single page order'
 description: 'Product type for single page orders.'
-variationType: single_page_order
+variationType: spo
 multipleVariations: true
 injectVariationFields: true
 traits: {  }

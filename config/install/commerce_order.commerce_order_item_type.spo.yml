@@ -3,12 +3,16 @@ status: true
 dependencies:
   module:
     - commerce_tax
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
 third_party_settings:
   commerce_tax:
     taxable_type: physical_goods
 label: 'Single page order'
-id: single_page_order
+id: spo
 purchasableEntityType: commerce_product_variation
-orderType: single_page_order
+orderType: spo
 traits: {  }
 locked: false

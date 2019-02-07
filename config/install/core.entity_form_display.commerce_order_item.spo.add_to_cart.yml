@@ -2,13 +2,17 @@ langcode: en
 status: true
 dependencies:
   config:
-    - commerce_order.commerce_order_item_type.single_page_order
+    - commerce_order.commerce_order_item_type.spo
     - core.entity_form_mode.commerce_order_item.add_to_cart
   module:
     - commerce_product
-id: commerce_order_item.single_page_order.add_to_cart
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
+id: commerce_order_item.spo.add_to_cart
 targetEntityType: commerce_order_item
-bundle: single_page_order
+bundle: spo
 mode: add_to_cart
 content:
   purchased_entity:

@@ -1,9 +1,14 @@
 langcode: en
 status: true
-dependencies: {  }
-id: single_page_order
+dependencies:
+  module:
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
+id: spo
 label: 'Single page order'
-orderItemType: single_page_order
+orderItemType: spo
 generateTitle: false
 traits:
   - purchasable_entity_shippable

@@ -5,16 +5,20 @@ dependencies:
     - commerce_cart
     - commerce_checkout
     - commerce_shipping
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
 third_party_settings:
   commerce_cart:
     cart_form_view: commerce_cart_form
     cart_block_view: commerce_cart_block
   commerce_checkout:
-    checkout_flow: single_page_order
+    checkout_flow: spo_flow
   commerce_shipping:
     shipment_type: ''
 label: 'Single page order'
-id: single_page_order
+id: spo
 workflow: order_default
 useMultipleProfileTypes: false
 refresh_mode: customer

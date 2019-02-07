@@ -2,14 +2,18 @@ langcode: en
 status: true
 dependencies:
   config:
-    - commerce_product.commerce_product_variation_type.single_page_order
-    - field.field.commerce_product_variation.single_page_order.field_images
-    - field.field.commerce_product_variation.single_page_order.weight
+    - commerce_product.commerce_product_variation_type.spo
+    - field.field.commerce_product_variation.spo.field_images
+    - field.field.commerce_product_variation.spo.weight
   module:
     - commerce_price
-id: commerce_product_variation.single_page_order.default
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
+id: commerce_product_variation.spo.default
 targetEntityType: commerce_product_variation
-bundle: single_page_order
+bundle: spo
 mode: default
 content:
   price:

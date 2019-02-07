@@ -2,12 +2,16 @@ langcode: en
 status: true
 dependencies:
   config:
-    - commerce_order.commerce_order_item_type.single_page_order
+    - commerce_order.commerce_order_item_type.spo
   module:
     - commerce_price
-id: commerce_order_item.single_page_order.default
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
+id: commerce_order_item.spo.default
 targetEntityType: commerce_order_item
-bundle: single_page_order
+bundle: spo
 mode: default
 content:
   created:

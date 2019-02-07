@@ -1,27 +1,31 @@
 langcode: en
-status: true
+status: false
 dependencies:
   config:
-    - commerce_product.commerce_product_type.single_page_order
-    - field.field.commerce_product.single_page_order.body
-    - field.field.commerce_product.single_page_order.field_images
-    - field.field.commerce_product.single_page_order.stores
-    - field.field.commerce_product.single_page_order.variations
+    - commerce_product.commerce_product_type.spo
+    - core.entity_view_mode.commerce_product.summary
+    - field.field.commerce_product.spo.body
+    - field.field.commerce_product.spo.stores
+    - field.field.commerce_product.spo.variations
   module:
     - commerce_product
     - text
-id: commerce_product.single_page_order.default
+    - commerce_spo
+  enforced:
+    module:
+      - commerce_spo
+id: commerce_product.spo.summary
 targetEntityType: commerce_product
-bundle: single_page_order
-mode: default
+bundle: spo
+mode: summary
 content:
   body:
+    label: hidden
     type: text_default
     weight: 1
-    region: content
-    label: hidden
     settings: {  }
     third_party_settings: {  }
+    region: content
   title:
     label: hidden
     type: string
@@ -33,14 +37,13 @@ content:
   variations:
     type: commerce_add_to_cart
     weight: 2
-    label: hidden
+    label: above
     settings:
       combine: true
     third_party_settings: {  }
     region: content
 hidden:
   created: true
-  field_images: true
   langcode: true
   stores: true
   uid: true
