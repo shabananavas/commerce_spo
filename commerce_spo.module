@@ -1,0 +1,9 @@
+
+<?php
+
+/**
+ * @file
+ * Contains code for the commerce_spo module.
+ */
+
+const COMMERCE_SPO_LOGGER_CHANNEL = 'commerce_spo';

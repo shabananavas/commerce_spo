@@ -3,13 +3,12 @@
 namespace Drupal\commerce_spo\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Defines the single page order type configuration entity.
  *
  * @ConfigEntityType(
- *   id = spo_type,
+ *   id = "spo_type",
  *   label = @Translation("Single page order type"),
  *   label_collection = @Translation("Single page order type"),
  *   label_singular = @Translation("single page order type"),
