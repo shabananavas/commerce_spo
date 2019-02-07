@@ -23,7 +23,7 @@ class SpoRouteSubscriber extends RouteSubscriberBase {
       return;
     }
 
-    $route->setDefault('_controller', '\Drupal\commerce_spo\Controller\IndividualPageController::productPage');
+    $route->setDefault('_controller', '\Drupal\commerce_spo\Controller\IndividualOrderPageController::productPage');
   }
 
 }

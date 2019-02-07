@@ -13,11 +13,11 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class IndividualPageController.
+ * Class IndividualOrderPageController.
  *
  * @package Drupal\commerce_spo\Controller
  */
-class IndividualPageController extends ControllerBase {
+class IndividualOrderPageController extends ControllerBase {
 
   /**
    * The entity type manager.
@@ -84,7 +84,7 @@ class IndividualPageController extends ControllerBase {
   }
 
   /**
-   * Render the individual page order form if this product belongs to an spo.
+   * Render the individual order page form if this product belongs to an spo.
    *
    * @return mixed
    *   A render array.
@@ -114,7 +114,7 @@ class IndividualPageController extends ControllerBase {
       return $product_view;
     }
 
-    // Else, we redirect to our individual page order form.
+    // Else, we redirect to our individual order page form.
     // First, load an existing cart if it exists, or create a new order.
     $store = $this->currentStore->getStore();
     $order_type = $spo_type->getSelectedOrderType();
@@ -124,7 +124,7 @@ class IndividualPageController extends ControllerBase {
       $order = $this->cartProvider->createCart($order_type, $store);
     }
 
-    // TODO: Build and render our individual page order form.
+    // TODO: Build and render our individual order page form.
   }
 
 }
